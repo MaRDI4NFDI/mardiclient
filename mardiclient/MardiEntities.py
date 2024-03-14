@@ -24,10 +24,10 @@ class MardiItem(ItemEntity):
     def handleModificationFailed(self, e):
         """Handle ModificationFailed Exception
         """
-        print('Item with given label and description already exists.')
         match = re.search(r'Q\d+', str(e))
         if match:
             qid = match.group()
+            print('Item with given label and description already exists.')
             print(f'Existing item with QID: {qid} is returned')
             return self.api.item.get(entity_id=qid)
 
