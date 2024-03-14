@@ -30,6 +30,8 @@ class MardiItem(ItemEntity):
             print('Item with given label and description already exists.')
             print(f'Existing item with QID: {qid} is returned')
             return self.api.item.get(entity_id=qid)
+        else:
+            print(e)
 
     def get(self, entity_id, **kwargs):
         json_data = super(ItemEntity, self)._get(entity_id=entity_id, **kwargs)
