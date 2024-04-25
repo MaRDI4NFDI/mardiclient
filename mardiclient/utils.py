@@ -115,11 +115,11 @@ class MardiDisambiguator(WikibaseIntegrator):
         if 'error' in r1.json.keys():
             raise WBAPIException(r1.json['error'])
         
-    def move_page(self, source, target):
+    def move_page(self, source, target, profile):
         token = self.get_csrf_token()
 
-        target = f"Person:{target}"
-        source = f"Person:{source}"
+        target = f"{profile}:{target}"
+        source = f"{profile}:{source}"
         
         params = {
             "action": "move",
@@ -165,7 +165,7 @@ class MardiDisambiguator(WikibaseIntegrator):
             self.delete_page(target_author_id, 'Person')
 
             # Move source Page to target Page
-            self.move_page(source_author_id, target_author_id)
+            self.move_page(source_author_id, target_author_id, 'Person')
 
         if not source_label and not target_label:
 
@@ -176,7 +176,7 @@ class MardiDisambiguator(WikibaseIntegrator):
                 source_QID, target_QID = target_QID, source_QID
             elif source_page_exists and target_page_exists:
                 self.delete_page(target_author_id, 'Person')
-                self.move_page(source_author_id, target_author_id)
+                self.move_page(source_author_id, target_author_id, 'Person')
 
         # Merge items
         results = merge_items(source_QID, target_QID, login=self.login, is_bot=True)
@@ -190,7 +190,7 @@ class MardiDisambiguator(WikibaseIntegrator):
         self.delete_page(target_author_id, 'Publication')
 
         # Move source Page to target Page
-        self.move_page(source_author_id, target_author_id)
+        self.move_page(source_author_id, target_author_id, 'Publication')
 
         results = merge_items(source_QID, target_QID, login=self.login, is_bot=True)
         return results['from']['id'], results['to']['id']
