@@ -84,8 +84,8 @@ class MardiDisambiguator(WikibaseIntegrator):
 
         return token
 
-    def get_page(self, target):
-        target = f"Person:{target}"
+    def get_page(self, target, profile):
+        target = f"{profile}:{target}"
         params = {
             "action": "parse",
             "page": {target},
@@ -97,10 +97,10 @@ class MardiDisambiguator(WikibaseIntegrator):
             return False
         return True
     
-    def delete_page(self, target):
+    def delete_page(self, target, profile):
         token = self.get_csrf_token()
 
-        target = f"Person:{target}"
+        target = f"{profile}:{target}"
         
         params = {
             "action": "delete",
@@ -162,25 +162,38 @@ class MardiDisambiguator(WikibaseIntegrator):
         # Redirect profile page, if it exists
         if source_label:
             # Delete target Person page
-            self.delete_page(target_author_id)
+            self.delete_page(target_author_id, 'Person')
 
             # Move source Page to target Page
             self.move_page(source_author_id, target_author_id)
 
         if not source_label and not target_label:
 
-            source_page_exists = self.get_page(source_author_id)
-            target_page_exists = self.get_page(target_author_id)
+            source_page_exists = self.get_page(source_author_id, 'Person')
+            target_page_exists = self.get_page(target_author_id, 'Person')
 
             if source_page_exists and not target_page_exists:
                 source_QID, target_QID = target_QID, source_QID
             elif source_page_exists and target_page_exists:
-                self.delete_page(target_author_id)
+                self.delete_page(target_author_id, 'Person')
                 self.move_page(source_author_id, target_author_id)
 
         # Merge items
         results = merge_items(source_QID, target_QID, login=self.login, is_bot=True)
-        return results['from']['id'], results['to']['id'] 
+        return results['from']['id'], results['to']['id']
+
+    def merge_publications(self, source_QID, target_QID):
+        source_author_id = source_QID.replace('Q', '')
+        target_author_id = target_QID.replace('Q', '')
+
+        # Delete target Publication page
+        self.delete_page(target_author_id, 'Publication')
+
+        # Move source Page to target Page
+        self.move_page(source_author_id, target_author_id)
+
+        results = merge_items(source_QID, target_QID, login=self.login, is_bot=True)
+        return results['from']['id'], results['to']['id']
 
 
 class WBAPIException(BaseException):
