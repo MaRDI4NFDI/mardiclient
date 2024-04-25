@@ -183,14 +183,14 @@ class MardiDisambiguator(WikibaseIntegrator):
         return results['from']['id'], results['to']['id']
 
     def merge_publications(self, source_QID, target_QID):
-        source_author_id = source_QID.replace('Q', '')
-        target_author_id = target_QID.replace('Q', '')
+        source_publication_id = source_QID.replace('Q', '')
+        target_publication_id = target_QID.replace('Q', '')
 
         # Delete target Publication page
-        self.delete_page(target_author_id, 'Publication')
+        self.delete_page(target_publication_id, 'Publication')
 
         # Move source Page to target Page
-        self.move_page(source_author_id, target_author_id, 'Publication')
+        self.move_page(source_publication_id, target_publication_id, 'Publication')
 
         results = merge_items(source_QID, target_QID, login=self.login, is_bot=True)
         return results['from']['id'], results['to']['id']
