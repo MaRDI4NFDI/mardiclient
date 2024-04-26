@@ -186,6 +186,29 @@ class MardiDisambiguator(WikibaseIntegrator):
         source_publication_id = source_QID.replace('Q', '')
         target_publication_id = target_QID.replace('Q', '')
 
+        # Harmonize description before merging
+        source_item = self.item.get(entity_id=source_QID)
+        source_claims = source_item.claims.get_json()
+
+        target_item = self.item.get(entity_id=target_QID)
+        target_claims = target_item.claims.get_json()
+
+        zbmath_prop = 'P1451'
+        if source_claims.get(zbmath_prop):
+            zbmath_de_number = source_claims.get(zbmath_prop)[0]['mainsnak']['datavalue']['value']
+            source_item.descriptions.set(language='en', value=f'scientific article; zbMATH DE number {zbmath_de_number}')
+            source_item.write()
+
+            target_item.descriptions.set(language='en', value=f'')
+            target_item.write()
+        elif target_claims.get(zbmath_prop):
+            zbmath_de_number = target_claims.get(zbmath_prop)[0]['mainsnak']['datavalue']['value']
+            target_item.descriptions.set(language='en', value=f'scientific article; zbMATH DE number {zbmath_de_number}')
+            target_item.write()
+
+            source_item.descriptions.set(language='en', value=f'')
+            source_item.write()
+
         # Delete target Publication page
         self.delete_page(target_publication_id, 'Publication')
 
