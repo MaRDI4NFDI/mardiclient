@@ -195,22 +195,20 @@ class MardiDisambiguator(WikibaseIntegrator):
 
         zbmath_prop = 'P1451'
         if source_claims.get(zbmath_prop):
-            zbmath_de_number = source_claims.get(zbmath_prop)[0]['mainsnak']['datavalue']['value']
+            zbmath_de_number = source_claims.get(zbmath_prop)[0]['mainsnak']['datavalue']['value']            
             description = f'scientific article; zbMATH DE number {zbmath_de_number}'
-
             source_item.descriptions.set(language='en', value=description)
             source_item.write()
 
-            target_item.descriptions.set(language='en', value=description)
+            target_item.descriptions.values['en'].remove()
             target_item.write()
         elif target_claims.get(zbmath_prop):
             zbmath_de_number = target_claims.get(zbmath_prop)[0]['mainsnak']['datavalue']['value']
             description = f'scientific article; zbMATH DE number {zbmath_de_number}'
-
             target_item.descriptions.set(language='en', value=description)
             target_item.write()
-            
-            source_item.descriptions.set(language='en', value=description)
+
+            source_item.descriptions.values['en'].remove()
             source_item.write()
 
         # Delete target Publication page
