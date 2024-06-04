@@ -134,6 +134,13 @@ class MardiClient(WikibaseIntegrator):
         if datatype == 'wikibase-item':
             if value.startswith("wd:"):
                 kwargs['value'] = self.get_local_id_by_label(value, 'item')
+            elif value in ['MaRDI person profile',
+                           'MaRDI publication profile',
+                           'MaRDI software profile',
+                           'MaRDI formula profile',
+                           'MaRDI dataset profile',
+                           'MaRDI community profile']:
+                kwargs['value'] = self.get_local_id_by_label(value, 'item')
             return Item(**kwargs)
         elif datatype == 'commonsMedia':
             return CommonsMedia(**kwargs)
