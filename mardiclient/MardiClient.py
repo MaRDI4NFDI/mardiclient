@@ -140,7 +140,7 @@ class MardiClient(WikibaseIntegrator):
                            'MaRDI formula profile',
                            'MaRDI dataset profile',
                            'MaRDI community profile']:
-                kwargs['value'] = self.get_local_id_by_label(value, 'item')
+                kwargs['value'] = self.get_local_id_by_label(value, 'item')[0]
             return Item(**kwargs)
         elif datatype == 'commonsMedia':
             return CommonsMedia(**kwargs)
