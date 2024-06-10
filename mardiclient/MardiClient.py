@@ -86,17 +86,12 @@ class MardiClient(WikibaseIntegrator):
                 return response.get('local_id')     
 
     def search_entity_by_value(self, prop_nr, value):
-        prefix = None
-        if (wbi_config['SPARQL_ENDPOINT_URL'] == 
-            'http://query.portal.mardi4nfdi.de/proxy/wdqs/bigdata/namespace/wdq/sparql'):
-            prefix = "PREFIX wdt: <https://portal.mardi4nfdi.de/prop/direct/>"
-
         prop_nr = self.get_local_id_by_label(prop_nr, 'property')
         if isinstance(value, str): 
             value = f'"{value}"'
 
         query = f'SELECT ?item WHERE {{?item wdt:{prop_nr} {value}}}'
-        result = execute_sparql_query(query, prefix)
+        result = execute_sparql_query(query)
 
         QID_list = []
         for item in result['results']['bindings']:
