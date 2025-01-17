@@ -285,3 +285,28 @@ class MardiProperty(PropertyEntity):
             prop_nr=self.api.wikidata_PID,
         )
         self.add_claims(claim)
+
+    def add_claim(self, prop_nr, value=None, action="append_or_replace", **kwargs):
+        """
+        Add a single claim to the property, given the property and
+        it value. Qualifiers and references can also be passed.
+
+        Args:
+            prop_nr (str): Property correspoding to the claim. It
+                can be a wikidata ID with the prefix 'wdt:', a
+                mardi ID, or directly the property label.
+            value (str): Value corresponding to the claim. In case
+                of an item, the wikidata ID can be used with the
+                prefix 'wd:'.
+
+        Returns:
+            Claim: Claim corresponding to the given datatype
+        """
+        claim = self.api.get_claim(prop_nr, value, **kwargs)
+        if action == "append_or_replace":
+            action = ActionIfExists.APPEND_OR_REPLACE
+        elif action == "replace_all":
+            action = ActionIfExists.REPLACE_ALL
+        else:
+            action = ActionIfExists.APPEND_OR_REPLACE
+        self.claims.add(claim, action)
