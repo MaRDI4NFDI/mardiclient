@@ -9,9 +9,6 @@ setup(
     author_email='accounts_ta5@mardi4nfdi.de',
     packages=['mardiclient'],
     install_requires=[
-        "mariadb",
-        "mysql-connector-python",
-        "sqlalchemy",
         "wikibaseintegrator"
     ],
     classifiers=[
