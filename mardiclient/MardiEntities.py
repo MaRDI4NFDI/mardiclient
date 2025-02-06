@@ -1,8 +1,6 @@
 import re
 import os
 import requests
-import sqlalchemy as db
-from sqlalchemy import and_
 
 from wikibaseintegrator.entities import ItemEntity, PropertyEntity
 from wikibaseintegrator.wbi_exceptions import ModificationFailed

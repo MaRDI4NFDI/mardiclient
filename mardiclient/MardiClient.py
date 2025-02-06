@@ -1,7 +1,6 @@
 import os
 import re
 import requests
-import sqlalchemy as db
 
 from .MardiEntities import MardiItem, MardiProperty
 from .mardi_config import config
