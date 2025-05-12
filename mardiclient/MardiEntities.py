@@ -17,7 +17,8 @@ class MardiItem(ItemEntity):
             entity = super().write(**kwargs)
             return entity
         except ModificationFailed as e:
-            return self.handleModificationFailed(e)
+            self.handleModificationFailed(e)
+            raise
 
     def handleModificationFailed(self, e):
         """Handle ModificationFailed Exception
