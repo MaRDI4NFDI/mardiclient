@@ -15,22 +15,37 @@ from wikibaseintegrator.datatypes import (URL, CommonsMedia, ExternalID, Form, G
 class MardiClient(WikibaseIntegrator):
     def __init__(self, **kwargs) -> None:
         super().__init__(is_bot=True)
-        self.login = self.config(**kwargs)
-        self.importer_api = config['IMPORTER_API_URL']
+
+        mediawiki_api_url = kwargs.pop('mediawiki_api_url', config['MEDIAWIKI_API_URL'])
+        sparql_endpoint_url = kwargs.pop('sparql_endpoint_url', config['SPARQL_ENDPOINT_URL'])
+        wikibase_url = kwargs.pop('wikibase_url', config['WIKIBASE_URL'])
+        self.importer_api = kwargs.pop('importer_api_url', config['IMPORTER_API_URL'])
+
+        self.login = self.config(
+            mediawiki_api_url=mediawiki_api_url,
+            sparql_endpoint_url=sparql_endpoint_url,
+            wikibase_url=wikibase_url,
+            **kwargs
+        )
+
         self.item = MardiItem(api=self)
         self.property = MardiProperty(api=self)
 
     @staticmethod
-    def config(user, password, login_with_bot=False):
+    def config(mediawiki_api_url, sparql_endpoint_url, wikibase_url, **kwargs):
         """
         Sets up initial configuration for the integrator
-
         Returns:
             Clientlogin object
         """
-        wbi_config["MEDIAWIKI_API_URL"] = config['MEDIAWIKI_API_URL']
-        wbi_config["SPARQL_ENDPOINT_URL"] = config['SPARQL_ENDPOINT_URL']
-        wbi_config["WIKIBASE_URL"] = config['WIKIBASE_URL']
+        wbi_config["MEDIAWIKI_API_URL"] = mediawiki_api_url
+        wbi_config["SPARQL_ENDPOINT_URL"] = sparql_endpoint_url
+        wbi_config["WIKIBASE_URL"] = wikibase_url
+        
+        user = kwargs.get('user')
+        password = kwargs.get('password')
+        login_with_bot = kwargs.get('login_with_bot', False)
+        
         try:
             if login_with_bot:
                 return wbi_login.Login(
