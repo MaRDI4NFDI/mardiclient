@@ -220,6 +220,8 @@ class MardiItem(ItemEntity):
         if 'en' in self.labels.values:
             label = self.labels.values['en'].value
 
+        if not label: return []
+
         importer_endpoint = self.api.importer_api
         response = requests.get(f'{importer_endpoint}/search/items/{label}')
         response = response.json()
@@ -246,6 +248,8 @@ class MardiProperty(PropertyEntity):
         label = ""
         if 'en' in self.labels.values:
             label = self.labels.values['en'].value
+
+        if not label: return []
 
         importer_endpoint = self.api.importer_api
         response = requests.get(f'{importer_endpoint}/search/properties/{label}')
