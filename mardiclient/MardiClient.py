@@ -19,12 +19,14 @@ class MardiClient(WikibaseIntegrator):
         mediawiki_api_url = kwargs.pop('mediawiki_api_url', config['MEDIAWIKI_API_URL'])
         sparql_endpoint_url = kwargs.pop('sparql_endpoint_url', config['SPARQL_ENDPOINT_URL'])
         wikibase_url = kwargs.pop('wikibase_url', config['WIKIBASE_URL'])
+        user_agent = kwargs.pop('user_agent', config['USER_AGENT'])
         self.importer_api = kwargs.pop('importer_api_url', config['IMPORTER_API_URL'])
 
         self.login = self.config(
             mediawiki_api_url=mediawiki_api_url,
             sparql_endpoint_url=sparql_endpoint_url,
             wikibase_url=wikibase_url,
+            user_agent=user_agent,
             **kwargs
         )
 
@@ -41,6 +43,7 @@ class MardiClient(WikibaseIntegrator):
         wbi_config["MEDIAWIKI_API_URL"] = mediawiki_api_url
         wbi_config["SPARQL_ENDPOINT_URL"] = sparql_endpoint_url
         wbi_config["WIKIBASE_URL"] = wikibase_url
+        wbi_config["USER_AGENT"] = user_agent
         
         user = kwargs.get('user')
         password = kwargs.get('password')
