@@ -223,24 +223,7 @@ class MardiItem(ItemEntity):
         importer_endpoint = self.api.importer_api
         response = requests.get(f'{importer_endpoint}/search/items/{label}')
         response = response.json()
-        return response.get('QID') or []
-
-    def add_linker_claim(self, wikidata_id):
-        """Function for in-place addition of a claim with the
-        property that points to the wikidata id
-        to the local entity
-
-        Args:
-            entity: WikibaseIntegrator entity whose claims
-                    this should be added to
-            wikidata_id: wikidata id of the wikidata item
-        """
-        claim = ExternalID(
-            value=wikidata_id,
-            prop_nr=self.api.wikidata_QID,
-        )
-        self.add_claims(claim)
-    
+        return response.get('QID') or []    
 
 class MardiProperty(PropertyEntity):
     def new(self, **kwargs):
@@ -268,22 +251,6 @@ class MardiProperty(PropertyEntity):
         response = requests.get(f'{importer_endpoint}/search/properties/{label}')
         response = response.json()
         return response.get('PID') or []
-
-    def add_linker_claim(self, wikidata_id):
-        """Function for in-place addition of a claim with the
-        property that points to the wikidata id
-        to the local entity
-
-        Args:
-            entity: WikibaseIntegrator entity whose claims
-                    this should be added to
-            wikidata_id: wikidata id of the wikidata item
-        """
-        claim = ExternalID(
-            value=wikidata_id,
-            prop_nr=self.api.wikidata_PID,
-        )
-        self.add_claims(claim)
 
     def add_claim(self, prop_nr, value=None, action="append_or_replace", **kwargs):
         """
