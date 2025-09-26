@@ -34,7 +34,7 @@ class MardiClient(WikibaseIntegrator):
         self.property = MardiProperty(api=self)
 
     @staticmethod
-    def config(mediawiki_api_url, sparql_endpoint_url, wikibase_url, **kwargs):
+    def config(mediawiki_api_url, sparql_endpoint_url, wikibase_url, user_agent, **kwargs):
         """
         Sets up initial configuration for the integrator
         Returns:
