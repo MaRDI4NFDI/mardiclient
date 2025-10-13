@@ -11,7 +11,7 @@ class MardiItem(ItemEntity):
 
     def new(self, **kwargs):
         return MardiItem(api=self.api, **kwargs)
-    
+
     def write(self, **kwargs):
         try:
             entity = super().write(**kwargs)
@@ -36,7 +36,7 @@ class MardiItem(ItemEntity):
         json_data = super(ItemEntity, self)._get(entity_id=entity_id, **kwargs)
         return MardiItem(api=self.api).from_json(json_data=json_data['entities'][entity_id])
 
-    def exists(self): 
+    def exists(self):
         """Checks through the Wikibase DB if an item with same label
         and description already exists
 
@@ -44,18 +44,17 @@ class MardiItem(ItemEntity):
             id (str): ID of the item if found, otherwise None.
         """
 
-        description = ""
-        if 'en' in self.descriptions.values:
-            description = self.descriptions.values['en'].value
+        label = self.labels.values['en'].value if 'en' in self.labels.values else ""
+        description = self.descriptions.values['en'].value if 'en' in self.descriptions.values else ""
 
-        # List of items with the same label
+        # List of items with the same label or alias
         QID_list = self.get_QID()
 
-        # Check if there is an item with the same description
+        # Check if there is an item with the same label and description
         for QID in QID_list:
-            item = ItemEntity(api=self.api).new()
-            item = item.get(QID)
-            if description == item.descriptions.values.get('en'):
+            item = ItemEntity(api=self.api).get(QID)
+            if (description == item.descriptions.values.get('en') and
+                label == item.labels.values.get('en')):
                 return QID
 
     def add_claim(self, prop_nr, value=None, action="append_or_replace", **kwargs):
@@ -123,7 +122,7 @@ class MardiItem(ItemEntity):
 
         instance_of_PID = self.api.get_local_id_by_label('instance of', 'property')
 
-        item_QID_list = self.get_QID(alias=True)
+        item_QID_list = self.get_QID()
         items = []
         for QID in item_QID_list:
             item = self.api.item.get(QID)
