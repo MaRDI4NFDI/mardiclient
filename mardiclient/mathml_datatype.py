@@ -5,4 +5,5 @@ class MathML(String):
     """
     Implements the data type for MathML as string
     """
-    DTYPE = 'mathml'
+
+    DTYPE = "mathml"
