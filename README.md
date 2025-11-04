@@ -4,10 +4,7 @@ MaRDI client to interact with the MaRDI knowledge graph.
 ## Installation
 
 ```bash
-git clone https://github.com/MaRDI4NFDI/mardiclient.git
-cd mardiclient
-python -m pip install --upgrade pip setuptools
-python -m pip install .
+pip install git+https://github.com/MaRDI4NFDI/mardiclient.git
 ```
 
 ## Setup user and password

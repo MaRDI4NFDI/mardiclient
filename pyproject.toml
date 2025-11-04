@@ -1,3 +1,134 @@
 [build-system]
-requires = ["setuptools>=42"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "mardiclient"
+version = "0.1.0"
+description = "Client to interact with the MaRDI knowledge graph"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "BSD-3-Clause"}
+authors = [
+    {name = "MaRDI TA5", email = "accounts_ta5@mardi4nfdi.de"}
+]
+maintainers = [
+    {name = "MaRDI TA5", email = "accounts_ta5@mardi4nfdi.de"}
+]
+keywords = [
+    "wikibase",
+    "mediawiki",
+    "knowledge-graph",
+    "mardi"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "wikibaseintegrator>=0.12",
+    "requests>=2.28",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.14.2",
+    "mypy>=1.11",
+    "types-requests>=2.31",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.2",
+    "mypy>=1.11",
+    "types-requests>=2.31",
+]
+
+[project.urls]
+Homepage = "https://github.com/MaRDI4NFDI/mardiclient"
+Repository = "https://github.com/MaRDI4NFDI/mardiclient"
+Issues = "https://github.com/MaRDI4NFDI/mardiclient/issues"
+Documentation = "https://github.com/MaRDI4NFDI/mardiclient#readme"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mardiclient*"]
+
+# Ruff configuration
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+extend-exclude = [
+    ".git",
+    ".mypy_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
+]
+
+# Linting rules
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes (unused imports, undefined names, etc.)
+    "I",      # isort (import sorting)
+    "B",      # flake8-bugbear (common bugs)
+    "C4",     # flake8-comprehensions (list/dict/set comprehensions)
+    "UP",     # pyupgrade (use modern Python syntax)
+    "ARG",    # flake8-unused-arguments
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking (TYPE_CHECKING block optimization)
+    "PTH",    # flake8-use-pathlib (prefer pathlib over os.path)
+]
+
+# Ignore these specific rules
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults
+    "ARG002", # unused method argument
+    "PTH123", # open() should be replaced by Path.open() (too strict)
+]
+
+# Allow certain behaviors in specific files
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Unused imports are OK in __init__.py
+
+# Import sorting configuration
+[tool.ruff.lint.isort]
+known-first-party = ["mardiclient"]
+force-single-line = false
+lines-after-imports = 2
+
+# Mypy configuration
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+
+# Ignore missing imports for external libraries without type stubs
+[[tool.mypy.overrides]]
+module = "wikibaseintegrator.*"
+ignore_missing_imports = true
