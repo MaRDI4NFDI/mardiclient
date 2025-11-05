@@ -1,0 +1,2 @@
+wikibaseintegrator>=0.12
+requests>=2.28
