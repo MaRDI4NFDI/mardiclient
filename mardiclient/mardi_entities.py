@@ -293,15 +293,12 @@ class MardiItem(ItemEntity):
         if not label:
             return []
 
-        try:
-            response = requests.get(
-                f"{self.api.importer_api}/search/items/{label}",
-                timeout=30,
-            )
-            response.raise_for_status()
-            return response.json().get("QID") or []
-        except requests.RequestException:
-            return []
+        response = requests.get(
+            f"{self.api.importer_api}/search/items/{label}",
+            timeout=30,
+        )
+        response.raise_for_status()
+        return response.json().get("QID") or []
 
 
 class MardiProperty(PropertyEntity):
@@ -352,15 +349,12 @@ class MardiProperty(PropertyEntity):
         if not label:
             return []
 
-        try:
-            response = requests.get(
-                f"{self.api.importer_api}/search/properties/{label}",
-                timeout=30,
-            )
-            response.raise_for_status()
-            return response.json().get("PID") or []
-        except requests.RequestException:
-            return []
+        response = requests.get(
+            f"{self.api.importer_api}/search/properties/{label}",
+            timeout=30,
+        )
+        response.raise_for_status()
+        return response.json().get("PID") or []
 
     def add_claim(
         self,
