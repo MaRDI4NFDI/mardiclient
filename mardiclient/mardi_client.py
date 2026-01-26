@@ -152,15 +152,12 @@ class MardiClient(WikibaseIntegrator):
         if match:
             wikidata_id = match.group(1)
             endpoint = "items" if wikidata_id.startswith("Q") else "properties"
-            try:
-                response = requests.get(
-                    f"{self.importer_api}/{endpoint}/{entity_str}/mapping",
-                    timeout=30,
-                )
-                response.raise_for_status()
-                return str(response.json().get("local_id"))
-            except requests.RequestException:
-                return None
+            response = requests.get(
+                f"{self.importer_api}/{endpoint}/{entity_str}/mapping",
+                timeout=30,
+            )
+            response.raise_for_status()
+            return str(response.json().get("local_id"))
 
         return None
 
@@ -183,10 +180,7 @@ class MardiClient(WikibaseIntegrator):
         formatted_value = f'"{value}"' if isinstance(value, str) else value
         query = f"SELECT ?item WHERE {{?item wdt:{prop_nr} {formatted_value}}}"
 
-        try:
-            result = execute_sparql_query(query)
-        except Exception:
-            return []
+        result = execute_sparql_query(query)
 
         QID_list = []
         for item in result["results"]["bindings"]:
