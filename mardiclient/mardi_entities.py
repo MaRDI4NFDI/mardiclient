@@ -55,15 +55,16 @@ class MardiItem(ItemEntity):
         Returns:
             Existing item if found, None otherwise
         """
-        match = re.search(r"Q\d+", str(e))
+        # Check for the specific duplicate label/description conflict
+        if "wikibase-validator-label-with-description-conflict" not in e.messages_names:
+            return None
+
+        entity_link = e.messages[0]["parameters"][2]
+        match = re.search(r"Q\d+", entity_link)
         if match:
             qid = match.group()
-            print("Item with given label and description already exists.")
-            print(f"Existing item with QID: {qid} is returned")
+            print(f"Found existing item {qid}, returning it")
             return self.api.item.get(entity_id=qid)
-        else:
-            print(e)
-            return None
 
     def get(self, entity_id: str, **kwargs: Any) -> MardiItem:
         """Get an item by its entity ID.
