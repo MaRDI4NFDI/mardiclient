@@ -296,7 +296,7 @@ class MardiItem(ItemEntity):
 
         response = requests.get(
             f"{self.api.importer_api}/search/items/{label}",
-            timeout=30,
+            timeout=60,
         )
         response.raise_for_status()
         return response.json().get("QID") or []
@@ -352,7 +352,7 @@ class MardiProperty(PropertyEntity):
 
         response = requests.get(
             f"{self.api.importer_api}/search/properties/{label}",
-            timeout=30,
+            timeout=60,
         )
         response.raise_for_status()
         return response.json().get("PID") or []

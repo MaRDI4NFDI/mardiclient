@@ -154,7 +154,7 @@ class MardiClient(WikibaseIntegrator):
             endpoint = "items" if wikidata_id.startswith("Q") else "properties"
             response = requests.get(
                 f"{self.importer_api}/{endpoint}/{entity_str}/mapping",
-                timeout=30,
+                timeout=60,
             )
             response.raise_for_status()
             return str(response.json().get("local_id"))
