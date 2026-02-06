@@ -1,0 +1,44 @@
+{    
+    "properties": {
+        "Wikidata PID": "P11",
+        "Wikidata QID": "P12",
+        "description": "P1459",
+        "dataset version identifier": "P1474",
+        "collection date": "P1475",
+        "upload date": "P1476",
+        "default target attribute": "P1477",
+        "row id attribute": "P1478",
+        "OpenML semantic tag": "P1465",
+        "citation text": "P1489",
+        "number of binary features": "P1481",
+        "number of classes": "P1482",
+        "number of features": "P1483",
+        "number of instances": "P1484",
+        "number of instances with missing values": "P1485",
+        "number of missing values": "P1486",
+        "number of numeric features": "P1487",
+        "number of symbolic features": "P1488",
+        "MaRDI profile type": "P1460",
+        "review text": "P1448",
+        "zbMATH DE Number": "P1451",
+        "zbMATH Keywords": "P1450",
+        "community": "P1495",
+        "Internal Project ID": "P1507",
+        "imports": "P585",
+        "contributed by": "P1383"
+    },
+    
+    "items": {
+        "Sparse ARFF": null,
+        "scientific project": "Q6205094",
+        "MaRDI community profile": "Q6205095",
+        "MaRDI dataset profile": "Q5984635",
+        "MaRDI software profile": "Q5976450",
+        "MaRDI publication profile": "Q5976449",
+        "MaRDI person profile": "Q5976445",
+        "polyDB collection": "Q161010",
+        "File License": "Q57086",
+        "ACM Software License Agreement": "Q57087",
+        "Unlimited License": "Q57088"
+    }
+}
