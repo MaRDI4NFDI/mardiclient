@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import json
+import os
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import requests
@@ -38,26 +41,6 @@ from .mathml_datatype import MathML
 if TYPE_CHECKING:
     from wikibaseintegrator.datatypes import BaseDataType
 
-#load entitiy mappings from JSON config
-_entity_mappings: dict | None = None
-
-def _load_entity_mappings() -> dict:
-    """Load entity mappings from JSON config file."""
-    global _entity_mappings
-    if _entity_mappings is not None:
-        return _entity_mappings
-    
-    env = os.environ.get("WIKIBASE_HOST", "prod").lower()
-    filename = "entity_mappings_staging.json" if env == "staging.mardi4nfdi.org" else "entity_mappings_prod.json"
-    mappings_path = Path(__file__).parent / filename
-    
-    if mappings_path.exists():
-        with open(mappings_path, "r", encoding="utf-8") as f:
-            _entity_mappings = json.load(f)
-    else:
-        _entity_mappings = {"properties": {}, "items": {}}
-    
-    return _entity_mappings
 
 class MardiClient(WikibaseIntegrator):
     """Client for interacting with the MaRDI knowledge graph.
@@ -96,8 +79,24 @@ class MardiClient(WikibaseIntegrator):
             **kwargs,
         )
 
+        self.mappings = self._load_entity_mappings()
         self.item = MardiItem(api=self)
         self.property = MardiProperty(api=self)
+
+    @staticmethod
+    def _load_entity_mappings() -> dict:
+        """Load entity mappings from JSON config file."""
+        env = os.environ.get("WIKIBASE_HOST", "prod").lower()
+        filename = "entity_mappings_staging.json" if env == "staging.mardi4nfdi.org" else "entity_mappings_prod.json"
+        mappings_path = Path(__file__).parent / filename
+        
+        if mappings_path.exists():
+            with open(mappings_path, "r", encoding="utf-8") as f:
+                entity_mappings = json.load(f)
+        else:
+            entity_mappings = {"properties": {}, "items": {}}
+        
+        return entity_mappings
 
     @staticmethod
     def _config(
@@ -172,16 +171,15 @@ class MardiClient(WikibaseIntegrator):
             return str(response.json().get("local_id"))
 
         # else it is a label
-        mappings = _load_entity_mappings()
         if entity_type == "property":
-            cached = mappings.get("properties", {}).get(entity_str)
+            cached = self.mappings.get("properties", {}).get(entity_str)
             if cached:
                 return cached
             new_property = MardiProperty(api=self).new()
             new_property.labels.set(language="en", value=entity_str)
             return new_property.get_PID()
         elif entity_type == "item":
-            cached = mappings.get("items", {}).get(entity_str)
+            cached = self.mappings.get("items", {}).get(entity_str)
             if cached:
                 return cached
             new_item = MardiItem(api=self).new()
