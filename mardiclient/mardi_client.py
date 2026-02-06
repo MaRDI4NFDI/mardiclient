@@ -47,8 +47,8 @@ def _load_entity_mappings() -> dict:
     if _entity_mappings is not None:
         return _entity_mappings
     
-    env = os.environ.get("MARDI_ENVIRONMENT", "prod").lower()
-    filename = "entity_mappings_staging.json" if env == "staging" else "entity_mappings_prod.json"
+    env = os.environ.get("WIKIBASE_HOST", "prod").lower()
+    filename = "entity_mappings_staging.json" if env == "staging.mardi4nfdi.org" else "entity_mappings_prod.json"
     mappings_path = Path(__file__).parent / filename
     
     if mappings_path.exists():
