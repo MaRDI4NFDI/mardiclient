@@ -1,0 +1,44 @@
+{    
+    "properties": {
+        "Wikidata PID": "P1",
+        "Wikidata QID": "P2",
+        "description": "P896",
+        "dataset version identifier": "P1091",
+        "collection date": null,
+        "upload date": null,
+        "default target attribute": null,
+        "row id attribute": null,
+        "OpenML semantic tag": null,
+        "citation text": null,
+        "number of binary features": null,
+        "number of classes": null,
+        "number of features": null,
+        "number of instances": null,
+        "number of instances with missing values": null,
+        "number of missing values": null,
+        "number of numeric features": null,
+        "number of symbolic features": null,
+        "MaRDI profile type": "P583",
+        "review text": null,
+        "zbMATH DE Number": "P370",
+        "zbMATH Keywords": null,
+        "community": "P582",
+        "Internal Project ID": "P584",
+        "imports": "P1099",
+        "contributed by": null
+    },
+    
+    "items": {
+        "Sparse ARFF": null,
+        "scientific project": null,
+        "MaRDI community profile": null,
+        "MaRDI dataset profile": null,
+        "MaRDI software profile": null,
+        "MaRDI publication profile": null,
+        "MaRDI person profile": null,
+        "polyDB collection": null,
+        "File License": null,
+        "ACM Software License Agreement": null,
+        "Unlimited License": null
+    }
+}

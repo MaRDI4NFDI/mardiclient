@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import json
+import os
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import requests
@@ -76,8 +79,24 @@ class MardiClient(WikibaseIntegrator):
             **kwargs,
         )
 
+        self.mappings = self._load_entity_mappings()
         self.item = MardiItem(api=self)
         self.property = MardiProperty(api=self)
+
+    @staticmethod
+    def _load_entity_mappings() -> dict:
+        """Load entity mappings from JSON config file."""
+        env = os.environ.get("WIKIBASE_HOST", "prod").lower()
+        filename = "entity_mappings_staging.json" if env == "staging.mardi4nfdi.org" else "entity_mappings_prod.json"
+        mappings_path = Path(__file__).parent / filename
+        
+        if mappings_path.exists():
+            with open(mappings_path, "r", encoding="utf-8") as f:
+                entity_mappings = json.load(f)
+        else:
+            entity_mappings = {"properties": {}, "items": {}}
+        
+        return entity_mappings
 
     @staticmethod
     def _config(
@@ -135,19 +154,11 @@ class MardiClient(WikibaseIntegrator):
         local_pattern = r"^[PQ]\d+$"
         wikidata_pattern = r"^wdt?:([PQ]\d+$)"
 
+        # test if it is a local ID
         if re.match(local_pattern, entity_str):
             return entity_str
 
-        if not entity_str.startswith(("wdt:", "wd:")):
-            if entity_type == "property":
-                new_property = MardiProperty(api=self).new()
-                new_property.labels.set(language="en", value=entity_str)
-                return new_property.get_PID()
-            elif entity_type == "item":
-                new_item = MardiItem(api=self).new()
-                new_item.labels.set(language="en", value=entity_str)
-                return new_item.get_QID()
-
+        # test if it is a Wikidata ID
         match = re.match(wikidata_pattern, entity_str)
         if match:
             wikidata_id = match.group(1)
@@ -158,6 +169,24 @@ class MardiClient(WikibaseIntegrator):
             )
             response.raise_for_status()
             return str(response.json().get("local_id"))
+
+        # else it is a label
+        if entity_type == "property":
+            cached = self.mappings.get("properties", {}).get(entity_str)
+            if cached:
+                return cached
+            new_property = MardiProperty(api=self).new()
+            new_property.labels.set(language="en", value=entity_str)
+            return new_property.get_PID()
+        elif entity_type == "item":
+            cached = self.mappings.get("items", {}).get(entity_str)
+            if cached:
+                return cached
+            new_item = MardiItem(api=self).new()
+            new_item.labels.set(language="en", value=entity_str)
+            return new_item.get_QID()
+
+        
 
         return None
 
