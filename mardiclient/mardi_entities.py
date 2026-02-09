@@ -295,8 +295,8 @@ class MardiItem(ItemEntity):
             return []
 
         cached = self.api.mappings.get("items", {}).get(label)
-            if cached:
-                return cached
+        if cached:
+            return cached
         response = requests.get(
             f"{self.api.importer_api}/search/items/{label}",
             timeout=60,
