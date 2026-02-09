@@ -65,6 +65,8 @@ Documentation = "https://github.com/MaRDI4NFDI/mardiclient#readme"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["mardiclient*"]
+[tool.setuptools.package-data]
+mardiclient = ["*.json"]
 
 # Ruff configuration
 [tool.ruff]
