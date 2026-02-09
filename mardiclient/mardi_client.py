@@ -172,16 +172,10 @@ class MardiClient(WikibaseIntegrator):
 
         # else it is a label
         if entity_type == "property":
-            cached = self.mappings.get("properties", {}).get(entity_str)
-            if cached:
-                return cached
             new_property = MardiProperty(api=self).new()
             new_property.labels.set(language="en", value=entity_str)
             return new_property.get_PID()
         elif entity_type == "item":
-            cached = self.mappings.get("items", {}).get(entity_str)
-            if cached:
-                return cached
             new_item = MardiItem(api=self).new()
             new_item.labels.set(language="en", value=entity_str)
             return new_item.get_QID()
