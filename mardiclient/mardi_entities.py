@@ -296,7 +296,7 @@ class MardiItem(ItemEntity):
 
         cached = self.api.mappings.get("items", {}).get(label)
             if cached:
-                return [cached]
+                return cached
         response = requests.get(
             f"{self.api.importer_api}/search/items/{label}",
             timeout=60,
@@ -355,7 +355,7 @@ class MardiProperty(PropertyEntity):
 
         cached = self.api.mappings.get("properties", {}).get(label)
         if cached:
-            return [cached]
+            return cached
         response = requests.get(
             f"{self.api.importer_api}/search/properties/{label}",
             timeout=60,
