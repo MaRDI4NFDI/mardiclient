@@ -49,7 +49,7 @@ class MardiItem(ItemEntity):
             ModificationFailed: If the write operation fails
         """
         try:
-            return self._write_with_relogin(**kwargs)
+            entity = self._write_with_relogin(**kwargs)
             return cast("MardiItem", entity)
         except ModificationFailed as e:
             existing_item = self._handle_modification_failed(e)
