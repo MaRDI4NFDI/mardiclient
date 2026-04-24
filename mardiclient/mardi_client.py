@@ -71,13 +71,16 @@ class MardiClient(WikibaseIntegrator):
         user_agent = kwargs.pop("user_agent", config["USER_AGENT"])
         self.importer_api = kwargs.pop("importer_api_url", config["IMPORTER_API_URL"])
 
-        self.login = self._config(
-            mediawiki_api_url=mediawiki_api_url,
-            sparql_endpoint_url=sparql_endpoint_url,
-            wikibase_url=wikibase_url,
-            user_agent=user_agent,
-            **kwargs,
-        )
+        self._login_kwargs = {
+            "mediawiki_api_url": mediawiki_api_url,
+            "sparql_endpoint_url": sparql_endpoint_url,
+            "wikibase_url": wikibase_url,
+            "user_agent": user_agent,
+            **kwargs, 
+        }
+
+
+        self.login = self._config(**self._login_kwargs)
 
         self.mappings = self._load_entity_mappings()
         self.item = MardiItem(api=self)
@@ -138,6 +141,18 @@ class MardiClient(WikibaseIntegrator):
         except LoginError:
             print("Wrong credentials")
             return None
+        
+    def relogin(self) -> None:
+        """Recreate the login session.
+
+        Called when the existing session has expired server-side
+        (symptom: LoginError "An anonymous token was returned").
+        """
+        print("MardiClient: refreshing login (previous session expired)")
+        new_login = self._config(**self._login_kwargs)
+        if new_login is None:
+            raise LoginError("Re-authentication failed")
+        self.login = new_login
 
     def get_local_id_by_label(self, entity_str: str, entity_type: str) -> str | list[str] | None:
         """Check if entity with a given label or wikidata PID/QID

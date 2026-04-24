@@ -9,6 +9,7 @@ import requests
 from wikibaseintegrator.entities import ItemEntity, PropertyEntity
 from wikibaseintegrator.wbi_enums import ActionIfExists
 from wikibaseintegrator.wbi_exceptions import ModificationFailed
+from wikibaseintegrator.wbi_login import LoginError
 
 
 if TYPE_CHECKING:
@@ -27,9 +28,19 @@ class MardiItem(ItemEntity):
             New MardiItem instance
         """
         return MardiItem(api=self.api, **kwargs)
+    
+    def _write_with_relogin(self, **kwargs: Any):
+        try:
+            return super().write(**kwargs)
+        except LoginError:
+            self.api.relogin()
+            if "login" in kwargs:
+                kwargs["login"] = self.api.login
+            return super().write(**kwargs)
 
     def write(self, **kwargs: Any) -> MardiItem:
         """Write the item to the knowledge graph.
+        Retries once on LoginError by refreshing the client's login session.
 
         Returns:
             The written item
@@ -38,7 +49,7 @@ class MardiItem(ItemEntity):
             ModificationFailed: If the write operation fails
         """
         try:
-            entity = super().write(**kwargs)
+            return self._write_with_relogin(**kwargs)
             return cast("MardiItem", entity)
         except ModificationFailed as e:
             existing_item = self._handle_modification_failed(e)
@@ -317,6 +328,16 @@ class MardiProperty(PropertyEntity):
             New MardiProperty instance
         """
         return MardiProperty(api=self.api, **kwargs)
+    
+    def write(self, **kwargs: Any) -> MardiProperty:
+        """Write the property, refreshing the login session once if it expired."""
+        try:
+            return cast("MardiProperty", super().write(**kwargs))
+        except LoginError:
+            self.api.relogin()
+            if "login" in kwargs:
+                kwargs["login"] = self.api.login
+            return cast("MardiProperty", super().write(**kwargs))
 
     def get(self, entity_id: str, **kwargs: Any) -> MardiProperty:
         """Get a property by its entity ID.
