@@ -227,6 +227,46 @@ class MardiClient(WikibaseIntegrator):
                 QID_list.append(match.group(1))
 
         return QID_list
+    
+    def batch_search_by_value(self, prop_nr: str, values: list[str | int]) -> dict[str | int, list[str]]:
+        """Search for entities matching any of the given values for a property.
+
+        Args:
+            prop_nr: Property identifier
+            values: List of values to search for
+
+        Returns:
+            Dict mapping each value to a list of matching QIDs
+        """
+        if not values:
+            return {}
+
+        resolved_prop = self.get_local_id_by_label(prop_nr, "property")
+        if not resolved_prop or isinstance(resolved_prop, list):
+            return {}
+
+        prop_nr = resolved_prop
+
+        values_str = " ".join(
+            f'"{v}"' if isinstance(v, str) else str(v) for v in values
+        )
+        query = (
+            f"SELECT ?item ?value WHERE {{"
+            f" VALUES ?value {{ {values_str} }}"
+            f" ?item wdt:{prop_nr} ?value ."
+            f"}}"
+        )
+
+        result = execute_sparql_query(query)
+
+        mapping: dict[str | int, list[str]] = {}
+        for binding in result["results"]["bindings"]:
+            val = binding["value"]["value"]
+            match = re.search(r"/(Q\d+)$", binding["item"]["value"])
+            if match:
+                mapping.setdefault(val, []).append(match.group(1))
+
+        return mapping
 
     def get_claim(self, prop_nr: str, value: Any = None, **kwargs: Any) -> BaseDataType | MathML:
         """
