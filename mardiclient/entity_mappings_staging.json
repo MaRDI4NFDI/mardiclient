@@ -29,16 +29,16 @@
         "zbMATH Keywords": null
     },
     "items": {
-        "ACM Software License Agreement": null,
-        "File License": null,
-        "MaRDI community profile": null,
-        "MaRDI dataset profile": null,
-        "MaRDI person profile": null,
-        "MaRDI publication profile": null,
-        "MaRDI software profile": null,
+        "ACM Software License Agreement": "Q20141",
+        "File License": "Q20140",
+        "MaRDI community profile": "Q559",
+        "MaRDI dataset profile": "Q4630",
+        "MaRDI person profile": "Q825",
+        "MaRDI publication profile": "Q822",
+        "MaRDI software profile": "Q4631",
         "polyDB collection": null,
-        "scientific project": null,
+        "scientific project": "Q560",
         "Sparse ARFF": null,
-        "Unlimited License": null
+        "Unlimited License": "Q20142"
     }
 }
