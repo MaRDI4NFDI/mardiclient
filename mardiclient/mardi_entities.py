@@ -308,7 +308,8 @@ class MardiItem(ItemEntity):
         cached = self.api.mappings.get("items", {}).get(label)
         if cached:
             return [cached]
-        response = requests.get(
+        # not cached: items with this label may be created during a run
+        response = getattr(self.api, "http", requests).get(
             f"{self.api.importer_api}/search/items/{label}",
             timeout=60,
         )
@@ -377,12 +378,18 @@ class MardiProperty(PropertyEntity):
         cached = self.api.mappings.get("properties", {}).get(label)
         if cached:
             return cached
-        response = requests.get(
+        cache = getattr(self.api, "id_cache", {})
+        if ("property", label) in cache:
+            return cache[("property", label)]
+        response = getattr(self.api, "http", requests).get(
             f"{self.api.importer_api}/search/properties/{label}",
             timeout=60,
         )
         response.raise_for_status()
-        return response.json().get("PID") or []
+        pids = response.json().get("PID") or []
+        if pids:
+            cache[("property", label)] = pids
+        return pids
 
     def add_claim(
         self,

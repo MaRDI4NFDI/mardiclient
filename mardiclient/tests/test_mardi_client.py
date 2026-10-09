@@ -214,12 +214,12 @@ def test_get_local_id_by_label_uses_importer_mapping(monkeypatch: pytest.MonkeyP
     assert result == "Q555"
     assert fake_get.last_call == {
         "url": "https://importer.test/items/wd:Q42/mapping",
-        "timeout": 30,
+        "timeout": 60,
     }
 
 
 def test_get_local_id_by_label_handles_importer_failure(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Gracefully handle importer failures by returning `None`.
+    """Importer failures (after the session's retries) are raised, not turned into `None`.
 
     Args:
         monkeypatch: Pytest helper for patching network calls.
@@ -231,7 +231,57 @@ def test_get_local_id_by_label_handles_importer_failure(monkeypatch: pytest.Monk
 
     monkeypatch.setattr(mc.requests, "get", fake_get)
 
-    assert client.get_local_id_by_label("wd:Q999", "item") is None
+    with pytest.raises(mc.requests.RequestException):
+        client.get_local_id_by_label("wd:Q999", "item")
+
+
+class CountingHttp:
+    """Stands in for the importer API session; counts requests per URL."""
+
+    def __init__(self, payloads: dict[str, dict]) -> None:
+        self.payloads, self.calls = payloads, []
+
+    def get(self, url: str, *, timeout: int) -> SimpleNamespace:
+        self.calls.append(url)
+        return SimpleNamespace(raise_for_status=lambda: None, json=lambda: self.payloads[url])
+
+
+def test_wikidata_mappings_are_cached() -> None:
+    client = make_client()
+    client.id_cache = {}
+    client.http = CountingHttp({"https://importer.test/properties/wdt:P348/mapping": {"local_id": "P132"},
+                                "https://importer.test/items/wd:Q404/mapping": {"local_id": None}})
+    assert [client.get_local_id_by_label("wdt:P348", "property") for _ in range(3)] == ["P132"] * 3
+    client.get_local_id_by_label("wd:Q404", "item")
+    client.get_local_id_by_label("wd:Q404", "item")
+    assert client.http.calls.count("https://importer.test/properties/wdt:P348/mapping") == 1
+    assert client.http.calls.count("https://importer.test/items/wd:Q404/mapping") == 2   # not mapped yet: asked again
+
+
+def test_property_labels_cached_item_labels_not() -> None:
+    from mardiclient.mardi_entities import MardiItem, MardiProperty
+
+    client = make_client()
+    client.id_cache, client.mappings = {}, {"properties": {}, "items": {}}
+    client.is_bot, client.login = True, None
+    client.http = CountingHttp({"https://importer.test/search/properties/instance of": {"PID": ["P31"]},
+                                "https://importer.test/search/items/zoo": {"QID": ["Q7"]}})
+    for _ in range(2):
+        prop = MardiProperty(api=client).new()
+        prop.labels.set(language="en", value="instance of")
+        assert prop.get_PID() == ["P31"]
+        item = MardiItem(api=client).new()
+        item.labels.set(language="en", value="zoo")
+        assert item.get_QID() == ["Q7"]
+    assert client.http.calls.count("https://importer.test/search/properties/instance of") == 1
+    assert client.http.calls.count("https://importer.test/search/items/zoo") == 2
+
+
+def test_importer_api_session_retries_dropped_connections() -> None:
+    retry = mc.importer_api_session().get_adapter("http://importer-api/x").max_retries
+    assert retry.total == 5
+    assert "GET" in retry.allowed_methods
+    assert 503 in retry.status_forcelist
 
 
 def test_search_entity_by_value_builds_query(monkeypatch: pytest.MonkeyPatch) -> None:

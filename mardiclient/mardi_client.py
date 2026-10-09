@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from wikibaseintegrator import WikibaseIntegrator, wbi_login
 from wikibaseintegrator.datatypes import (
     URL,
@@ -40,6 +42,15 @@ from .mathml_datatype import MathML
 
 if TYPE_CHECKING:
     from wikibaseintegrator.datatypes import BaseDataType
+
+
+def importer_api_session() -> requests.Session:
+    """Session for the importer API, retrying GET requests on dropped connections."""
+    retry = Retry(total=5, backoff_factor=0.5, status_forcelist=(502, 503, 504), allowed_methods=("GET",))
+    session = requests.Session()
+    session.mount("http://", HTTPAdapter(max_retries=retry))
+    session.mount("https://", HTTPAdapter(max_retries=retry))
+    return session
 
 
 class MardiClient(WikibaseIntegrator):
@@ -83,6 +94,8 @@ class MardiClient(WikibaseIntegrator):
         self.login = self._config(**self._login_kwargs)
 
         self.mappings = self._load_entity_mappings()
+        self.http = importer_api_session()
+        self.id_cache: dict[str, Any] = {}
         self.item = MardiItem(api=self)
         self.property = MardiProperty(api=self)
 
@@ -176,14 +189,20 @@ class MardiClient(WikibaseIntegrator):
         # test if it is a Wikidata ID
         match = re.match(wikidata_pattern, entity_str)
         if match:
+            cache = getattr(self, "id_cache", {})
+            if entity_str in cache:
+                return cache[entity_str]
             wikidata_id = match.group(1)
             endpoint = "items" if wikidata_id.startswith("Q") else "properties"
-            response = requests.get(
+            response = getattr(self, "http", requests).get(
                 f"{self.importer_api}/{endpoint}/{entity_str}/mapping",
                 timeout=60,
             )
             response.raise_for_status()
-            return str(response.json().get("local_id"))
+            local_id = response.json().get("local_id")
+            if local_id:
+                cache[entity_str] = str(local_id)
+            return str(local_id)
 
         # else it is a label
         if entity_type == "property":
